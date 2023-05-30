@@ -1,0 +1,13 @@
+#!/bin/bash
+
+sleep 2
+sudo pacman -Syy
+updates=`sudo pacman -Qu | wc -l`
+if [ "$updates" != 0 ]; then
+	dunstify "Updates" "($updates) packages can be updated." -u low -i $HOME/Icons/updates.png
+else
+	dunstify "Updates" "System is upto date." -u low -i $HOME/Icons/updates.png
+fi
+
+
+

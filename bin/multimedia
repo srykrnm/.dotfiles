@@ -1,0 +1,74 @@
+#!/bin/bash
+
+case $1 in
+	binc)
+		brightnessctl s 5%+
+		br=`brightnessctl | grep '%' | awk '{print $4}' | sed 's/(//g' | sed 's/)//g'`
+		dunstify "Brightness" "$br" -u low -r 1234 -i $HOME/Icons/brightness.png
+		;;
+	bdec)
+		brightnessctl s 5%-
+		br=`brightnessctl | grep '%' | awk '{print $4}' | sed 's/(//g' | sed 's/)//g'`
+		dunstify "Brightness" "$br" -u low -r 1234 -i $HOME/Icons/brightness.png
+		;;
+	ainc)
+	  	pamixer -i 5
+	    	s=`pamixer --get-volume-human`
+		if [ "$s" == muted ]; then
+			dunstify "Audio" "Mute" -u low -r 6969 -i $HOME/Icons/mute.png
+		else 
+			dunstify "Audio" "$s" -u low -r 6969 -i $HOME/Icons/sound.png
+		fi 
+		;;
+	adec)
+		pamixer -d 5
+		s=`pamixer --get-volume-human`
+		if [ "$s" == muted ]; then
+		       	dunstify "Audio" "Mute" -u low -r 6969 -i $HOME/Icons/mute.png
+		else
+	      		dunstify "Audio" "$s" -u low -r 6969 -i $HOME/Icons/sound.png
+      		fi 
+		;;
+	atogg)
+		pamixer -t
+		s=`pamixer --get-volume-human`
+		if [ "$s" == muted ]; then
+			dunstify "Audio" "Mute" -u low -r 6969 -i $HOME/Icons/mute.png
+		else
+			dunstify "Audio" "$s" -u low -r 6969 -i $HOME/Icons/sound.png
+		fi
+		;; 
+	aps)
+		stats=`playerctl status`
+		if [ "$stats" == "Playing" ]; then
+			icon="paused"
+			msg="paused"
+		elif [ "$stats" == "Paused" ]; then
+			icon="playing"
+			msg="playing"
+        else
+            msg="Play/Pause: No player could handle this command"
+            icon="play-pause"
+		fi
+		dunstify "Audio" "$msg" -u low -r 6969 -i $HOME/Icons/$icon.png
+		playerctl play-pause
+		;;
+	anxt)
+        err_qn=`playerctl next 2>&1 > /dev/null`
+        if [ "${#err_qn}" == 0 ]; then
+            msg="Next"
+        else
+            msg="Next: No  player could handle this command"
+        fi
+		dunstify "Audio" "$msg" -u low -r 6969 -i $HOME/Icons/next.png
+		;;
+	aprev)
+        err_qn=`playerctl previous 2>&1 > /dev/null`
+        if [ "${#err_qn}" == 0 ]; then
+            msg="Previous"
+        else
+            msg="Previous: No  player could handle this command"
+        fi
+		dunstify "Audio" "$msg" -u low -r 6969 -i $HOME/Icons/prev.png
+		;;       
+esac	

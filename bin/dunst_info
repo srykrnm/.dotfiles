@@ -1,0 +1,24 @@
+#!/bin/bash
+
+up=`sys_info -u`
+bri=`sys_info -l`
+vol=`sys_info -v`
+bat=`sys_info -b`
+tm=`sys_info -t`
+dt=`sys_info -d`
+wifi=`sys_info -w`
+ker=`sys_info -k`
+
+dunstify \
+"                     INFO" \
+"      =--------------------------------= 
+       DATE : $dt 
+       TIME : $tm
+       UPT  : $up
+       BAT  : $bat
+       VOL  : $vol
+       BRI  : $bri
+       WIFI : $wifi
+       KER  : $ker
+      =--------------------------------=" \
+-u low -r 8778 -t 10000

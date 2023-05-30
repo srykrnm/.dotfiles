@@ -1,0 +1,67 @@
+#!/bin/bash
+
+bri() {
+	echo `brightnessctl | grep '%' | awk '{print $4}' | sed 's/(//g' | sed 's/)//g'`
+}
+
+vol() {
+	echo `pamixer --get-volume-human`
+}
+
+upt() {
+	upt="$(uptime --pretty | sed -e 's/up //g' -e 's/ days/d/g' -e 's/ day/d/g' -e 's/ hours/h/g' -e 's/ hour/h/g' -e 's/ minutes/m/g' -e 's/, / /g')"
+	echo -e "$upt"
+}
+
+batry() {
+	echo `acpi | awk '{print $4}' | cut -d ',' -f1`
+}
+
+usage() {
+	echo 'hi'
+}
+
+ker() {
+	echo `uname -sr`
+}
+
+dt() {
+    echo `date | awk '{print $2" "$3" "$6" ("$1")"}'`
+}
+
+tm() {
+    echo `date | awk '{print $4}'`
+}
+
+wifi() {
+    wifi_data="`nmcli connection | grep 'wifi'`"
+    if [ "${#wifi_data}" != 0 ]; then
+        ssid=`nmcli connection | grep 'wifi' | awk '{print $1}'`
+        echo "$ssid [CONNECTED]"
+    else
+        echo "None [Disconnected]"
+    fi
+}
+
+while getopts "lvubhkdtw" obj; do
+	case "${obj}" in
+		l)
+			bri;;
+		v)
+			vol;;
+		u)
+			upt;;
+		b)
+			batry;;
+		k)
+			ker;;
+        d)
+            dt;;
+        t)
+            tm;;
+        w)
+            wifi;;
+		h | *)
+			usage;;
+	esac
+done
