@@ -21,9 +21,15 @@ PS1="${GREEN}\W ${RESET}> "
 
 ### EXPORTS ###
 
-export PATH=/home/$USER/Menu-scripts:$PATH
+export PATH=/home/$USER/Dmenu-scripts:$PATH
 export PATH=/home/$USER/bin:$PATH
 export MANPAGER=bat
+export BROWSER=brave
+export PDF_OPENER=zathura
+
+### VI-MODE ###
+
+#set -o vi
 
 ### OTHER STUFF ###
 

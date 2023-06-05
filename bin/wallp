@@ -1,5 +1,5 @@
 #!/bin/bash
 
-#~/.fehbg
-
-nitrogen --restore
+wallp_path="$HOME/Pictures/Wallpapers"
+wallp=`ls $wallp_path | shuf | head -n 1`
+feh --bg-scale $wallp_path/$wallp

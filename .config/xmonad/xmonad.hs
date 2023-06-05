@@ -12,12 +12,14 @@ import XMonad.Hooks.EwmhDesktops (ewmh, ewmhFullscreen)
 import qualified XMonad.StackSet as W
 import XMonad.Util.SpawnOnce (spawnOnce)
 import qualified Data.Map        as M
-import XMonad.Actions.CycleWS (nextWS, prevWS, shiftToNext, shiftToPrev, toggleWS)
-import XMonad.Hooks.ManageDocks 
+import XMonad.Actions.CycleWS (WSType (Not), moveTo, emptyWS, nextWS, prevWS, shiftToNext, shiftToPrev, toggleWS)
+import XMonad.Hooks.ManageDocks
 import XMonad.Actions.CopyWindow (copyToAll, killAllOtherCopies)
 import Graphics.X11.ExtraTypes.XF86
 import XMonad.Layout.VoidBorders (normalBorders,voidBorders)
-
+import XMonad.Hooks.ManageHelpers (doRectFloat)
+import XMonad.Layout.Spacing (smartSpacingWithEdge, toggleWindowSpacingEnabled, toggleScreenSpacingEnabled )
+import XMonad.Layout.LimitWindows (limitWindows)
 
 --------------------------------------------------------------------------
 -- Basic Settings --
@@ -58,6 +60,8 @@ standardSize win = do
     return ()
 
 toggleFloat = floatOrNot (withFocused $ windows . W.sink) (withFocused centreFloat')
+
+
 --------------------------------------------------------------------------
 -- Key bindings --
 
@@ -65,7 +69,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
 
     [ ((modm .|. shiftMask, xK_Return), spawn $ XMonad.terminal conf)
 
-    , ((modm,               xK_p     ), spawn "m-run")
+    , ((modm,               xK_p     ), spawn "dm-run")
 
     ,  ((0                     , xF86XK_AudioLowerVolume), spawn "multimedia adec")
     
@@ -127,6 +131,12 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
 
     , ((modm,               xK_Up),  nextWS)
 
+    , ((modm,               xK_z),  sequence_ [toggleWindowSpacingEnabled, toggleScreenSpacingEnabled])
+
+    , ((modm,               xK_Right), moveTo Next (Not emptyWS))
+
+    , ((modm,               xK_Left),  moveTo Prev (Not emptyWS))
+
     , ((modm,               xK_Down),    prevWS)
 
     , ((modm .|. shiftMask, xK_Up),  shiftToNext >> nextWS)
@@ -136,12 +146,14 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm,               xK_a),    toggleWS)
 
     , ((modm,               xK_t ), toggleFloat)
+
+    , ((modm,               xK_slash ), spawn "dm-sw")
    
     , ((modm              , xK_comma ), sendMessage (IncMasterN 1))
 
     , ((modm              , xK_period), sendMessage (IncMasterN (-1)))
 
-    , ((modm .|. shiftMask, xK_q     ), spawn "m-ex")
+    , ((modm .|. shiftMask, xK_q     ), spawn "dm-ex")
 
     , ((modm .|. shiftMask, xK_r     ), spawn "xmonad --recompile; xmonad --restart")
 
@@ -174,9 +186,10 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
 --------------------------------------------------------------------------
 -- Layouts --
 
-myLayout = avoidStruts ( normalBorders tiled ||| Mirror (Tall 1 (3/100) (1/2)) ||| voidBorders Full  )
+myLayout = avoidStruts ( smartSpacingWithEdge 5 $ voidBorders Full |||  normalBorders  tiled ||| Mirror ( limitWindows 4 $ Tall 1 (3/100) (1/2)))
   where
-     tiled   = Tall nmaster delta ratio
+     tiled   = limitWindows 4 
+               $ Tall nmaster delta ratio
 
      nmaster = 1
 
@@ -188,10 +201,9 @@ myLayout = avoidStruts ( normalBorders tiled ||| Mirror (Tall 1 (3/100) (1/2)) |
 -- Window rules --
 
 myManageHook = composeAll
-    [ className =? "MPlayer"        --> doFloat
-    , className =? "Gimp"           --> doFloat
-    , resource  =? "desktop_window" --> doIgnore
-    , resource  =? "kdesktop"       --> doIgnore ]
+    [ className =? "Gimp"           --> doFloat
+    , className =? "Com.github.jmoerman.go-for-it"      --> doRectFloat(W.RationalRect 0.35 0.19 0.3 0.6)
+    , className =? "Brave"      --> doRectFloat(W.RationalRect 0.25 0.25 0.5 0.5)  ]
 
 --------------------------------------------------------------------------
 -- Event handling --
