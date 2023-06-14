@@ -50,4 +50,5 @@ fi
 
 nitrogen --restore&
 #wallp&
+#i3
 xmonad

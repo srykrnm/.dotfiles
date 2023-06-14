@@ -1,0 +1,9 @@
+
+[qtui]
+player_height=726
+player_width=666
+
+[skins]
+player_x=341
+player_y=192
+skin=/usr/share/audacious/Skins/Default

@@ -1,4 +1,11 @@
 let g:netrw_dirhistmax  =10
-let g:netrw_dirhistcnt =2
+let g:netrw_dirhistcnt =9
+let g:netrw_dirhist_9='/home/srykrnm/Downloads/pcc_3e-main/chapter_01'
+let g:netrw_dirhist_8='/home/srykrnm/Files/PIS'
+let g:netrw_dirhist_7='/home/srykrnm/Files/Suckless-builds/dmenu-build'
+let g:netrw_dirhist_6='/home/srykrnm/Files/Suckless-builds/st-build'
+let g:netrw_dirhist_5='/home/srykrnm/Files/PIS'
+let g:netrw_dirhist_4='/home/srykrnm/Files'
+let g:netrw_dirhist_3='/home/srykrnm/Files/PIS'
 let g:netrw_dirhist_2='/home/srykrnm/.dotfiles/.config/polybar'
 let g:netrw_dirhist_1='/home/srykrnm/Files/PIS'
