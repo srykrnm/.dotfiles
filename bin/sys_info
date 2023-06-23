@@ -34,12 +34,10 @@ tm() {
 }
 
 wifi() {
-    wifi_data="`nmcli connection | grep 'wifi' | grep '--' | wc -l`"
-    if [ "${wifi_data}" == 0 ]; then
-        ssid=`nmcli connection | grep 'wifi' | awk '{print $1}'`
-        echo "$ssid [CONNECTED]"
+    if [[ "$(iwgetid -r)" ]]; then
+        echo "$(iwgetid -r) [CONNECTED]"
     else
-        echo "None [Disconnected]"
+        echo "Offline"
     fi
 }
 

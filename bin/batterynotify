@@ -7,11 +7,11 @@ do
 	battery_level=`acpi -b | grep -P -o '[0-9]+(?=%)'`
 	battery_state=`acpi | awk '{print $3}'`
 	if [ "$battery_state" == Discharging, ]  && [ $battery_level -le 20  ]; then	
-        dunstify "Battery Low!" "$battery_level"% -u critical -r 69 -i $HOME/Icons/low_battery.png -h string:frcolor:#ff0000
+        dunstify "Battery Low!" "$battery_level"% -u critical -r 69 -i $HOME/Icons/low_battery.png -h string:frcolor:#646464
 	elif [ "$battery_state" == Not ]; then
 		dunstify "Charger connected" "$battery_level"% -u low -r 69 -i $HOME/Icons/charging_battery.png -h string:frcolor:#646464
 	elif [ "$battery_state" == Full, ]; then
-		dunstify "Battery Full" "$battery_level"% -u normal -r 69 -i $HOME/Icons/full_battery.png -h string:frcolor:#008000
+		dunstify "Battery Full" "$battery_level"% -u normal -r 69 -i $HOME/Icons/full_battery.png -h string:frcolor:#646464
 	fi
 done
 

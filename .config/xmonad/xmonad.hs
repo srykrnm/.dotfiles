@@ -9,16 +9,18 @@ import XMonad
 import Data.Monoid
 import System.Exit
 import XMonad.Hooks.EwmhDesktops (ewmh, ewmhFullscreen)
+import XMonad.Layout.ToggleLayouts
 import qualified XMonad.StackSet as W
 import XMonad.Util.SpawnOnce (spawnOnce)
 import qualified Data.Map        as M
 import XMonad.Actions.CycleWS (WSType (Not), moveTo, emptyWS, nextWS, prevWS, shiftToNext, shiftToPrev, toggleWS)
 import XMonad.Hooks.ManageDocks
+import XMonad.Layout.ThreeColumns (ThreeCol(ThreeColMid))
 import XMonad.Actions.CopyWindow (copyToAll, killAllOtherCopies)
 import Graphics.X11.ExtraTypes.XF86
 import XMonad.Layout.VoidBorders (normalBorders,voidBorders)
 import XMonad.Hooks.ManageHelpers (doRectFloat)
-import XMonad.Layout.Spacing (smartSpacingWithEdge, toggleWindowSpacingEnabled, toggleScreenSpacingEnabled )
+import XMonad.Layout.Spacing (spacingWithEdge)
 import XMonad.Layout.LimitWindows (limitWindows)
 
 --------------------------------------------------------------------------
@@ -33,19 +35,26 @@ myBorderWidth   = 1
 myModMask       = mod4Mask
 myWorkspaces    = ["www","ter","cht","mus","oth"]
 myNormalBorderColor  = "#646464"
-myFocusedBorderColor = "#ffffff"
-
+myFocusedBorderColor = "#9a9a9a"
 
 --------------------------------------------------------------------------
--- Stolen (Centre floating window and toggle) --
+-- [ User Defined Functions ]
+
+-- (Centre floating window and toggle) --
 
 centreRect = W.RationalRect 0.25 0.25 0.5 0.5
 
+hasBorder :: Query Bool
+hasBorder = ask >>= \w -> liftX $ do
+  wa <- withDisplay $ \d -> io $ getWindowAttributes d w
+  return $ wa_border_width wa /= 0
+
 floatOrNot f n = withFocused $ \windowId -> do
     floats <- gets (W.floating . windowset)
-    if windowId `M.member` floats 
-       then f
-       else n
+    hasBorders <- runQuery hasBorder windowId
+    if not (windowId `M.member` floats) && hasBorders
+        then n
+        else f
 
 centreFloat win = do
     (_, W.RationalRect x y w h) <- floatLocation win
@@ -61,7 +70,15 @@ standardSize win = do
 
 toggleFloat = floatOrNot (withFocused $ windows . W.sink) (withFocused centreFloat')
 
+-- (Toggle fullscreen if the currently focused widow is not floating) --
 
+toggleFullScreenIfNotFloating :: X ()
+toggleFullScreenIfNotFloating = withFocused $ \windowId -> do
+    floats <- gets (W.floating . windowset)
+    if not (windowId `M.member` floats)
+        then sendMessage ToggleLayout 
+        else return ()  -- Empty else case
+ 
 --------------------------------------------------------------------------
 -- Key bindings --
 
@@ -84,6 +101,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     ,  ((0                     , xF86XK_AudioNext), spawn "multimedia anxt")
 
     ,  ((0                     , xF86XK_AudioPrev), spawn "multimedia aprev")
+ 
+    , ((modm,                    xK_f), toggleFullScreenIfNotFloating )
 
     ,  ((0                     , xF86XK_AudioMute), spawn "multimedia atogg")
 
@@ -95,12 +114,16 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
 
     , ((modm,                xK_Print    ), spawn "flameshot launcher")
 
-    , ((modm,                xK_d    ), spawn "rofi -show drun")
+    , ((modm .|. shiftMask,  xK_d    ), spawn "rofi -show drun")
+
+    , ((modm,                xK_d    ), spawn "dm-drun")
+
+    , ((modm .|. shiftMask,  xK_f    ), spawn "dm-fb")
 
     , ((modm,                xK_i    ), spawn "dunst_info")
 
     , ((modm,                xK_b    ), spawn "polybar-msg cmd toggle")
-    
+
     , ((modm,                xK_q     ), kill)
 
     , ((modm,               xK_space ), sendMessage NextLayout)
@@ -130,8 +153,6 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm,               xK_l     ), sendMessage Expand)
 
     , ((modm,               xK_Up),  nextWS)
-
-    , ((modm,               xK_z),  sequence_ [toggleWindowSpacingEnabled, toggleScreenSpacingEnabled])
 
     , ((modm,               xK_Right), moveTo Next (Not emptyWS))
 
@@ -186,15 +207,19 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
 --------------------------------------------------------------------------
 -- Layouts --
 
-myLayout = avoidStruts ( smartSpacingWithEdge 5 $ voidBorders Full |||  normalBorders  tiled ||| Mirror ( limitWindows 4 $ Tall 1 (3/100) (1/2)))
+myLayout = avoidStruts 
+           $ toggleLayouts ( voidBorders Full ) 
+           $ spacingWithEdge 5 
+           $ normalBorders 
+           $ tiled ||| 
+             Mirror ( limitWindows 4 $ Tall 1 (3/100) (1/2)) ||| 
+             Full |||
+             ThreeColMid 1 (3/100) (1/2)
   where
      tiled   = limitWindows 4 
                $ Tall nmaster delta ratio
-
      nmaster = 1
-
      ratio   = 1/2
-
      delta   = 3/100
 
 --------------------------------------------------------------------------
